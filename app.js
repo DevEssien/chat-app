@@ -1,10 +1,13 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const ejs = require('ejs')
+const path = require('path')
+
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const mongoose = require('mongoose');
 
 
 const user = require('./models/user');
@@ -15,7 +18,10 @@ const User = require('./models/user')
 
 const MONGODB_URI = "mongodb://127.0.0.1:27017/chatDB";
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'))
 
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(homeRoute);
 app.use('/auth', userRoute);
 
@@ -40,7 +46,10 @@ mongoose.connect(MONGODB_URI, {
 
 
 io.on('connection', (socket) => {
-    console.log('a user connected', socket.id)
+    console.log('a user connected')
+    socket.on('message', (data) => {
+        socket.broadcast.emit('message', data)
+    })
 })
 
 server.listen(3000, () => {
