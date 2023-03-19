@@ -21,7 +21,7 @@ const MONGODB_URI = "mongodb://127.0.0.1:27017/chatDB";
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'))
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, "public")));
 app.use(homeRoute);
 app.use('/auth', userRoute);
 
