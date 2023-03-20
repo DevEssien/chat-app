@@ -6,8 +6,17 @@ socket.on("connection");
 const messageForm = document.querySelector('#chat-form');
 const chatMessages = document.querySelector('.chat-messages')
 
+//Get username and room from URL
+const { username, room } = Qs.parse(location.search, {
+    ignoreQueryPrefix: true
+})
+
+//join chat room
+socket.emit('joinRoom', { username, room })
+
 //message from server 
 socket.on("message", (message) => {
+    console.log('message ', message)
     outputMessage(message)
 
     //scroll down
@@ -34,8 +43,8 @@ const outputMessage = (message) => {
     const div = document.createElement('div');
     div.classList.add('message')
     div.innerHTML = `
-        <p> Essien <span>${date.toLocaleTimeString()}</span></p>
-        <p class="text">${message}</p>
+        <p class="meta"> ${message.username} <span>${message.time}</span></p>
+        <p class="text">${message.text}</p>
     `;
     document.querySelector('.chat-messages').appendChild(div)
 }
