@@ -62,10 +62,16 @@ io.on('connection', (socket) => {
         socket.join(user.room)
 
         //welcome current user
-        socket.emit('message', formatMessage(botName, 'Welcome to we-tok'))
+        socket.emit('message', formatMessage(botName, `Hello ${user.username}, Welcome to we-tok`))
         
         //Broadcast when a user joins a room
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat`))
+
+        //send users and room info
+        io.to(user.room).emit('roomUsers', {
+            room: user.room,
+            users: User.getRoomUsers(user.room)
+        })
     })
     
     //listen for chatMessage
@@ -76,7 +82,16 @@ io.on('connection', (socket) => {
 
     //Run when client disconnects
     socket.on('disconnect', () => {
-        io.emit('message', formatMessage(botName, 'a user has left the chat'));
+        const user = User.userLeave(socket.id);
+        if (user) {
+            io.to(user.room).emit('message', formatMessage(botName, `${user.username} has left the chat`));
+
+            //send users and room info
+            io.to(user.room).emit('roomUsers', {
+                room: user.room,
+                users: User.getRoomUsers(user.room)
+            })
+        }
     })
 
 })
