@@ -44,11 +44,22 @@ mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
 });
 
-
+//Run when client connects
 io.on('connection', (socket) => {
-    console.log('a user connected')
-    socket.on('message', (data) => {
-        socket.broadcast.emit('message', data)
+    //welcome current user
+    socket.emit('message', 'Welcome to meChat')
+
+    //Broadcast when a user connects
+    socket.broadcast.emit('message', 'A user has joined the chat')
+
+    //Run when client disconnects
+    socket.on('disconnect', () => {
+        io.emit('message', 'a user has left the chat');
+    })
+
+    //listen for chatMessage
+    socket.on('chatMessage', (message) => {
+        io.emit('message', message)
     })
 })
 
